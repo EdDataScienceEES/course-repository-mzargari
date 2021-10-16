@@ -34,3 +34,8 @@ vignettes/*.pdf
 
 # Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
 rsconnect/
+
+# R.proj file contains information about where the project folder is located on 
+# your local machine which is why it should not be uploaded to your GitHub repository 
+# since other people will not have the same path to the folder as you
+*.Rproj
