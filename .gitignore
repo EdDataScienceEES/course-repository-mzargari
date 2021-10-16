@@ -39,3 +39,6 @@ rsconnect/
 # your local machine which is why it should not be uploaded to your GitHub repository 
 # since other people will not have the same path to the folder as you
 *.Rproj
+
+# Files created on Mac computers that holds attributes/meta-data about the folder it resides in
+*.DS_Store
