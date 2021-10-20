@@ -42,3 +42,4 @@ rsconnect/
 
 # Files created on Mac computers that holds attributes/meta-data about the folder it resides in
 *.DS_Store
+.DS_Store
