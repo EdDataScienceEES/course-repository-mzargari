@@ -1,0 +1,20 @@
+RStudio cheat sheets:
+https://rstudio.com/resources/cheatsheets/
+https://raw.githubusercontent.com/rstudio/cheatsheets/master/data-transformation.pdf
+
+Really useful dplyr functions:
+• arrange()
+• distinct()
+• filter()
+• mutate()
+• rename()
+• summarise()
+• slice()
+• bind_rows(), bind_cols()
+• inner_join(), left_join(), right_join(), full_join(), nest_join(), semi_join(), anti_join()
+• group_by() ungroup()
+
+Even more dplyr fucntions here:
+
+https://dplyr.tidyverse.org/reference/index.html
+
