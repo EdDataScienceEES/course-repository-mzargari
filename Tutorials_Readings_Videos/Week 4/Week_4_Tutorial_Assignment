@@ -1,21 +1,20 @@
-Week 4 Coding Club tutorials
+Week 4 Tutorials:
 
-For next week on Data Science, please complete the following tutorials and readings
+https://ourcodingclub.github.io/tutorials/datavis - Completed
+(Beautiful and informative data visualization in R: Using ggplot2 to communicate your results)
 
-Beautiful and informative data visualisation in R
-https://ourcodingclub.github.io/tutorials/datavis
 
-Customising your figures
 https://ourcodingclub.github.io/tutorials/data-vis-2/
+Customizing your figures
 
-Beautifying graphs and taking your visualisation to the next level
 https://ourcodingclub.github.io/tutorials/dataviz-beautification
+Beautifying graphs and taking your visualization to the next level
 
 ----
 
 Readings
 
-R for Data Science Chapter 3 Data visualisation
+R for Data Science Chapter 3 Data visualization
 http://r4ds.had.co.nz/data-visualisation.html
 
 R for Data Science Chapter 28 Graphics for communication

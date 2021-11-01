@@ -1,6 +1,7 @@
-# Basic Data Manipulation Tutorial - EDS Course
+# Basic Data Manipulation Tutorial: Subset, modify and shape your data
 # Michael Zargari
 # 11-October-2021
+# https://ourcodingclub.github.io/tutorials/data-manip-intro/
 
 # Set your working directory to where the folder is saved on your computer
 setwd("~/Desktop/EDS (Environmental Data Science ) Course/Github Code/course-repository-mzargari/Files for Coding Club Tutorials/04_Data_manip_1")

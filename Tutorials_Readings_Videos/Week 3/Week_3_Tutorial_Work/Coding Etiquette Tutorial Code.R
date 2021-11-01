@@ -1,16 +1,13 @@
 # Coding Etiquette Tutorial - Michael Zargari
-# Proper heading:
-
-# Analysing vertebrate population change based on the Living Planet Index
-# Data available from http://www.livingplanetindex.org/
-
-# Gergana Daskalova ourcodingclub(at)gmail.com
-# 25-04-2017
+# Coding etiquette: Writing clear, informative and easy to use code
+# s2253374@ed.ac.uk
+# 10-10-2021
+# https://ourcodingclub.github.io/tutorials/etiquette/
 
 # Libraries ----
 library(tidyr)  # Formatting data for analysis
 library(dplyr)  # Manipulating data
-library(ggplot2)  # Visualising results
+library(ggplot2)  # Visualizing results
 library(readr)  # Manipulating data
 
 # Defining functions ----
