@@ -17,13 +17,14 @@ library(ggeffects)  # to visualise model predictions
 library(MCMCglmm)  # for Bayesian models
 library(MCMCvis)  # to visualise Bayesian model outputs
 library(stargazer)  # for tables of model outputs
+library(glmmTMB)
 
-setwd("~/Desktop/EDS (Environmental Data Science) Course/course-repository-mzargari/Tutorials_Readings_Videos/Week 5")
+setwd("~/Desktop/EDS (Environmental Data Science) Course/course-repository-mzargari/Tutorials_Readings_Videos/Week 6/Week_6_Outputs")
 
 # Load data ----
 # Remember to set your working directory to the folder
 # where you saved the workshop files
-toolik_plants <- read.csv("Week_5_Data/toolik_plants.csv")
+toolik_plants <- read.csv("~/Desktop/EDS (Environmental Data Science) Course/course-repository-mzargari/Tutorials_Readings_Videos/Week 6/Week_6_Data/toolik_plants.csv")
 
 # Inspect data
 head(toolik_plants)
@@ -101,6 +102,7 @@ summary(plant_m)
 plot(plant_m)
 
 plant_m_plot <- lmer(Richness ~ I(Year-2007) + (1|Site), data = toolik_plants)
+
 summary(plant_m_plot)
 
 plant_m_plot2 <- lmer(Richness ~ I(Year-2007) + (1|Site/Block), data = toolik_plants)
@@ -137,12 +139,12 @@ summary(plant_m_temp)
 
 # Visualize the fixed effect
 (temp.fe.effects <- plot_model(plant_m_temp, show.values = TRUE))
-save_plot(filename = "Week_5_Outputs/model_temp_fe.png",
+save_plot(filename = "model_temp_fe.png",
           height = 8, width = 15)
 
 # Visualize the random effect terms
 (temp.re.effects <- plot_model(plant_m_temp, type = "re", show.values = TRUE))
-save_plot(filename = "Week_5_Outputs/model_temp_re.png",
+save_plot(filename = "model_temp_re.png",
           height = 8, width = 15)
 
 # If the code is running for a while, feel free to click on the “Stop” button 
@@ -173,5 +175,72 @@ ggpredict(plant_m_rs, terms = c("Mean.Temp", "Site"), type = "re") %>% plot() +
 save_plot(filename = "model_temp_richness_rs_ri.png",
           height = 12, width = 14)
 
-# NOT DONE
+# Overall predictions - note that we have specified just mean temperature as a term
+predictions <- ggpredict(plant_m_rs, terms = c("Mean.Temp"))
+
+(pred_plot1 <- ggplot(predictions, aes(x, predicted)) +
+    geom_line() +
+    geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = .1) +
+    scale_y_continuous(limits = c(0, 35)) +
+    labs(x = "\nMean annual temperature", y = "Predicted species richness\n"))
+
+ggsave(pred_plot1, filename = "overall_predictions.png",
+       height = 5, width = 5)
+
+# Predictions for each grouping level (here plot which is a random effect)
+# re stands for random effect
+predictions_rs_ri <- ggpredict(plant_m_rs, terms = c("Mean.Temp", "Site"), type = "re")
+
+(pred_plot2 <- ggplot(predictions_rs_ri, aes(x = x, y = predicted, colour = group)) +
+    stat_smooth(method = "lm", se = FALSE)  +
+    scale_y_continuous(limits = c(0, 35)) +
+    theme(legend.position = "bottom") +
+    labs(x = "\nMean annual temperature", y = "Predicted species richness\n"))
+
+ggsave(pred_plot2, filename = "ri_rs_predictions.png",
+       height = 5, width = 5)
+
+# Zoomed Version ----
+(pred_plot3 <- ggplot(predictions_rs_ri, aes(x = x, y = predicted, colour = group)) +
+   stat_smooth(method = "lm", se = FALSE)  +
+   theme(legend.position = "bottom") +
+   labs(x = "\nMean annual temperature", y = "Predicted species richness\n"))
+
+ggsave(pred_plot3, filename = "ri_rs_predictions_zoom.png",
+       height = 5, width = 5)
+
+# Hierarchical models using MCMCglmm ----
+
+# Model does not converge 
+plant_mcmc <- MCMCglmm(Richness ~ I(Year - 2007), random = ~Site,
+                       family = "poisson",  data = toolik_plants)
+
+# Adding in random effects
+plant_mcmc <- MCMCglmm(Richness ~ I(Year-2007), random = ~Block + Plot,
+                       family = "poisson", data = toolik_plants)
+
+summary(plant_mcmc)
+
+plot(plant_mcmc$VCV)
+plot(plant_mcmc$Sol)
+
+# Set weakly informative priors
+prior2 <- list(R = list(V = 1, nu = 0.002),
+               G = list(G1 = list(V = 1, nu = 1, alpha.mu = 0, alpha.v = 10000),
+                        G2 = list(V = 1, nu = 1, alpha.mu = 0, alpha.v = 10000),
+                        G3 = list(V = 1, nu = 1, alpha.mu = 0, alpha.v = 10000)))
+
+# Extract just the Betula nana data
+betula <- filter(toolik_plants, Species == "Bet nan")
+
+betula_m <- MCMCglmm(round(Relative.Cover*100) ~ Year, random = ~Site + Block + Plot,
+                     family = "poisson", prior = prior2, data = betula)
+
+summary(betula_m)
+plot(betula_m$VCV)
+plot(betula_m$Sol)
+
+MCMCplot(betula_m$Sol)
+MCMCplot(betula_m$VCV)
+
 
