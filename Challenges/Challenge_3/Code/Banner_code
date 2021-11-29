@@ -1,0 +1,25 @@
+Code to make banners in script
+
+--
+
+Title:
+
+banner("Data Science in Ecological and Environmental Sciences", "Challenge 3 - Statistical 
+Modelling", "Date completed: 13-November-2021", "Written by:", 
+"Michael Zargari (s2253374@ed.ac.uk, @mzargari)")
+
+--
+
+Table of contents:
+
+banner("Table of Contents:", 
+       "Libraries", 
+       "Installing Packages", 
+       "Load Living Planet Data",
+       "Filtering Atlantic Salmon Species from Data", 
+       "Creating CSV files", 
+       "Hierarchical Linear Model", 
+       "Checking Residuals",
+       "Predictions", 
+       "Trends and Conclusions""
+       snug = TRUE)
