@@ -1,0 +1,28 @@
+Code to make banners in script
+
+--
+
+Title:
+
+banner("Data Science in Ecological and Environmental Sciences", "Challenge 4 - Forest Coverage in the Pilliga Nature Reserve", "Date completed: 25-November-2021", "Written and Edited by:", 
+"Giada Leone (@giadaleone99)
+David Du (@xdu071)
+Michael Zargari (@mzargari)
+Sarka Ondrouchova (@sharkie58)
+Lubin Grosbuis (@lubin-g)")
+
+--
+
+Table of contents:
+
+banner("Table of Contents:", 
+       "Libraries", 
+       "Installing Packages", 
+       "Load Data",
+       "Clean Data", 
+       
+       "Hierarchical Linear Model", 
+       "Checking Residuals",
+       "Predictions", 
+       "Trends and Conclusions""
+       snug = TRUE)
