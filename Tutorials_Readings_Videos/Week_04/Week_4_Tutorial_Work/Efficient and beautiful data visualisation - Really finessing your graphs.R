@@ -9,9 +9,10 @@
 ###  https://ourcodingclub.github.io/tutorials/dataviz-beautification/   ###
 ############################################################################
 
+#### This tutorial is continued during week 8
 
 # Your working directory, set to the folder you just downloaded from Github, e.g.:
-setwd("~/Desktop/EDS (Environmental Data Science) Course/course-repository-mzargari/Tutorials_Readings_Videos/Week 4/Week_4_Graphs")
+setwd("~/Desktop/EDS (Environmental Data Science) Course/course-repository-mzargari/Tutorials_Readings_Videos/Week_04/Week_4_Outputs")
 
 # Libraries ----
 # if you haven't installed them before, run the code install.packages("package_name")
@@ -25,8 +26,8 @@ library(viridis)  # for nice colours
 # Load data - site coordinates and plant records from
 # the Long Term Ecological Research Network
 # https://lternet.edu and the Niwot Ridge site more specifically
-lter <- read.csv("~/Desktop/EDS (Environmental Data Science) Course/course-repository-mzargari/Tutorials_Readings_Videos/Week 4/Week_4_Data/lter.csv")
-niwot_plant_exp <- read.csv("~/Desktop/EDS (Environmental Data Science) Course/course-repository-mzargari/Tutorials_Readings_Videos/Week 4/Week_4_Data/niwot_plant_exp.csv")
+lter <- read.csv("~/Desktop/EDS (Environmental Data Science) Course/course-repository-mzargari/Tutorials_Readings_Videos/Week_04/Week_4_Data/lter.csv")
+niwot_plant_exp <- read.csv("~/Desktop/EDS (Environmental Data Science) Course/course-repository-mzargari/Tutorials_Readings_Videos/Week_04/Week_4_Data/niwot_plant_exp.csv")
 
 # MAPS ----
 # Get the shape of North America
@@ -433,5 +434,6 @@ ggsave(histogram4, filename = "histogram4.png",
 
 ggsave(histogram5, filename = "histogram5.png",
        height = 5, width = 5)
+
 
 
