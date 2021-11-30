@@ -2,7 +2,10 @@
 
 The aim of this repository is to organize all my work from the Fall 2021 semester. This repository is split up into folders which are outlined below:
 
-### Course_Notes_and_Links:
+### Challenges:
+A folder containing all my work from the Challenges I completed. Folders for Challenges 1, 2, 3, and 4 are all contained in the folder.
+
+### Notes_and_Links:
 A folder containing the notes that I took throughout this course. It also contains links to websites that have information that I have used throughout the semester which help explain many concepts we have learned.
 
 ### Tutorials_Readings_Videos:
@@ -14,10 +17,8 @@ A folder containing all the data I used that week for my tutorial assignments.
 #### (3) Week_X_Tutorial_Work 
 A folder for the code that I typed from the Coding Club tutorials. These coding files include my own comments and headers.
 #### (4) [If applicable] Week_X_Outputs
-A folder containing all the outputs from my Coding Club tutorial, if outputs were recorded.
+A folder containing all the outputs from my Coding Club tutorial (if outputs were recorded).
 
-
-## Coding Ettiqutte:
 
 ## Contact Information:
 
