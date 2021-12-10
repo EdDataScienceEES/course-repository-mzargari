@@ -21,7 +21,6 @@ library(ggalt)
 library(ggrepel)
 library(rgbif)
 library(CoordinateCleaner)
-# devtools::install_github("wilkox/treemapify")
 library(treemapify)
 library(gridExtra)
 
@@ -323,6 +322,397 @@ head(bird_models_traits)
 (trends_diet <- ggplot(data = bird_models_traits, aes(x = diet, y = estimate,
                                                       colour = diet)) +
     geom_jitter(size = 3, alpha = 0.3, width = 0.2))
+
+# Calculating mean trends per diet categories
+diet_means <- bird_models_traits %>% group_by(diet) %>%
+  summarise(mean_trend = mean(estimate)) %>%
+  arrange(mean_trend)
+
+# Sorting the whole data frame by the mean trends
+bird_models_traits <- bird_models_traits %>%
+  group_by(diet) %>%
+  mutate(mean_trend = mean(estimate)) %>%
+  ungroup() %>%
+  mutate(diet = fct_reorder(diet, -mean_trend))
+
+(trends_diet <- ggplot() +
+    geom_jitter(data = bird_models_traits, aes(x = diet, y = estimate,
+                                               colour = diet),
+                size = 3, alpha = 0.3, width = 0.2) +
+    geom_segment(data = diet_means,aes(x = diet, xend = diet,
+                                       y = mean(bird_models_traits$estimate), 
+                                       yend = mean_trend),
+                 size = 0.8) +
+    geom_point(data = diet_means, aes(x = diet, y = mean_trend,
+                                      fill = diet), size = 5,
+               colour = "grey30", shape = 21) +
+    geom_hline(yintercept = mean(bird_models_traits$estimate), 
+               size = 0.8, colour = "grey30") +
+    geom_hline(yintercept = 0, linetype = "dotted", colour = "grey30") +
+    coord_flip() +
+    theme_clean() +
+    scale_colour_manual(values = wes_palette("Cavalcanti1")) +
+    scale_fill_manual(values = wes_palette("Cavalcanti1")) +
+    scale_y_continuous(limits = c(-0.23, 0.23),
+                       breaks = c(-0.2, -0.1, 0, 0.1, 0.2),
+                       labels = c("-0.2", "-0.1", "0", "0.1", "0.2")) +
+    scale_x_discrete(labels = c("Carnivore", "Fruigivore", "Omnivore", "Insectivore", "Herbivore")) +
+    labs(x = NULL, y = "\nPopulation trend") +
+    guides(colour = FALSE, fill = FALSE))
+
+ggsave(trends_diet, filename = "trends_diet.png",
+       height = 5, width = 8)
+
+# Get the shape of Australia
+australia <- map_data("world", region = "Australia")
+
+# Make an object for the populations which don't have trait data
+# so that we can plot them too
+# notice the use of anti_join that only returns rows
+# in the first data frame that don't have matching rows
+# in the second data frame
+bird_models_no_traits <- anti_join(aus_models, bird_diet, by = "species.name")
+
+(map <- ggplot() +
+    geom_map(map = australia, data = australia,
+             aes(long, lat, map_id = region), 
+             color = "gray80", fill = "gray80", size = 0.3) +
+    # you can change the projection here
+    coord_proj(paste0("+proj=merc"), ylim = c(-9, -45)) +
+    theme_map() +
+    geom_point(data = bird_models_no_traits, 
+               aes(x = decimal.longitude, y = decimal.latitude),
+               alpha = 0.8, size = 4, fill = "white", colour = "grey30",
+               shape = 21,
+               position = position_jitter(height = 0.5, width = 0.5)) +
+    geom_point(data = bird_models_traits, 
+               aes(x = decimal.longitude, y = decimal.latitude, fill = diet),
+               alpha = 0.8, size = 4, colour = "grey30", shape = 21,
+               position = position_jitter(height = 0.5, width = 0.5)) +
+    scale_fill_manual(values = wes_palette("Cavalcanti1"),
+                      labels = c("Carnivore", "Fruigivore", "Omnivore", "Insectivore", "Herbivore")) +
+    # guides(colour = FALSE) + # if you wanted to hide the legend
+    theme(legend.position = "bottom",
+          legend.title = element_blank(),
+          legend.text = element_text(size = 12),
+          legend.justification = "top"))
+
+# You don't need to worry about the warning messages
+# that's just cause we've overwritten the default projection
+
+ggsave(map, filename = "map1.png",
+       height = 5, width = 8)
+
+
+diet_sum <- bird_models_traits %>% group_by(diet) %>%
+  tally()
+
+(diet_bar <- ggplot(diet_sum, aes(x = diet, y = n,
+                                  colour = diet,
+                                  fill = diet)) +
+    geom_bar(stat = "identity") +
+    scale_colour_manual(values = wes_palette("Cavalcanti1")) +
+    scale_fill_manual(values = wes_palette("Cavalcanti1")) +
+    guides(fill = FALSE))
+
+(diet_area <- ggplot(diet_sum, aes(area = n, fill = diet, label = n,
+                                   subgroup = diet)) +
+    geom_treemap() +
+    geom_treemap_subgroup_border(colour = "white", size = 1) +
+    geom_treemap_text(colour = "white", place = "center", reflow = T) +
+    scale_colour_manual(values = wes_palette("Cavalcanti1")) +
+    scale_fill_manual(values = wes_palette("Cavalcanti1")) +
+    guides(fill = FALSE))  # this removes the colour legend
+# later on we will combine multiple plots so there is no need for the legend
+# to be in twice
+
+# To display the legend, just remove the guides() line
+(diet_area <- ggplot(diet_sum, aes(area = n, fill = diet, label = n,
+                                   subgroup = diet)) +
+    geom_treemap() +
+    geom_treemap_subgroup_border(colour = "white", size = 1) +
+    geom_treemap_text(colour = "white", place = "center", reflow = T) +
+    scale_colour_manual(values = wes_palette("Cavalcanti1")) +
+    scale_fill_manual(values = wes_palette("Cavalcanti1")))
+
+ggsave(diet_area, filename = "diet_area.png",
+       height = 5, width = 8)
+
+# Timeline
+# Making the id variable a factor
+# otherwise R thinks its a number
+bird_models_traits$id <- as.factor(as.character(bird_models_traits$id))
+
+(timeline_aus <- ggplot() +
+    geom_linerange(data = bird_models_traits, aes(ymin = minyear, ymax = maxyear, 
+                                                  colour = diet,
+                                                  x = id),
+                   size = 1) +
+    scale_colour_manual(values = wes_palette("Cavalcanti1")) +
+    labs(x = NULL, y = NULL) +
+    theme_bw() +
+    coord_flip())
+
+# Create a sorting variable
+bird_models_traits$sort <- bird_models_traits$diet
+bird_models_traits$sort <- factor(bird_models_traits$sort, levels = c("VertFishScav",
+                                                                      "FruiNect",
+                                                                      "Omnivore",
+                                                                      "Invertebrate",
+                                                                      "PlantSeed"),
+                                  labels = c(1, 2, 3, 4, 5))
+
+bird_models_traits$sort <- paste0(bird_models_traits$sort, bird_models_traits$minyear)
+bird_models_traits$sort <- as.numeric(as.character(bird_models_traits$sort))
+
+(timeline_aus <- ggplot() +
+    geom_linerange(data = bird_models_traits, aes(ymin = minyear, ymax = maxyear, 
+                                                  colour = diet,
+                                                  x = fct_reorder(id, desc(sort))),
+                   size = 1) +
+    scale_colour_manual(values = wes_palette("Cavalcanti1")) +
+    labs(x = NULL, y = NULL) +
+    theme_bw() +
+    coord_flip() +
+    guides(colour = F) +
+    theme(panel.grid.minor = element_blank(),
+          panel.grid.major.y = element_blank(),
+          panel.grid.major.x = element_line(),
+          axis.ticks = element_blank(),
+          legend.position = "bottom", 
+          panel.border = element_blank(),
+          legend.title = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks.y = element_blank(),
+          plot.title = element_text(size = 20, vjust = 1, hjust = 0),
+          axis.text = element_text(size = 16), 
+          axis.title = element_text(size = 20)))
+
+ggsave(timeline_aus, filename = "timeline.png",
+       height = 5, width = 8)
+
+# Combining the datasets
+mass <- bird_traits %>% dplyr::select(species.name, BodyMass.Value) %>%
+  rename(mass = BodyMass.Value)
+bird_models_mass <- left_join(aus_models, mass, by = "species.name") %>%
+  drop_na(mass)
+head(bird_models_mass)
+
+(trends_mass <- ggplot(bird_models_mass, aes(x = log(mass), y = abs(estimate))) +
+    geom_point() +
+    geom_smooth(method = "lm") +
+    theme_clean() +
+    labs(x = "\nlog(mass)", y = "Absolute population change\n"))
+
+# A more beautiful and clear version
+(trends_mass <- ggplot(bird_models_mass, aes(x = log(mass), y = abs(estimate))) +
+    geom_point(colour = "turquoise4", size = 3, alpha = 0.3) +
+    geom_smooth(method = "lm", colour = "deepskyblue4", fill = "turquoise4") +
+    geom_label_repel(data = subset(bird_models_mass, log(mass) > 9),
+                     aes(x = log(mass), y = abs(estimate),
+                         label = common.name),
+                     box.padding = 1, size = 5, nudge_x = 1,
+                     # We are specifying the size of the labels and nudging the points so that they
+                     # don't hide data points, along the x axis we are nudging by one
+                     min.segment.length = 0, inherit.aes = FALSE) +
+    geom_label_repel(data = subset(bird_models_mass, log(mass) < 1.8),
+                     aes(x = log(mass), y = abs(estimate),
+                         label = common.name),
+                     box.padding = 1, size = 5, nudge_x = 1,
+                     min.segment.length = 0, inherit.aes = FALSE) +
+    theme_clean() +
+    labs(x = "\nlog(mass)", y = "Absolute population change\n"))
+
+ggsave(trends_mass, filename = "trends_mass.png",
+       height = 5, width = 6)
+
+### Download occurrence data through R ----
+# Even more data synthesis - adding in occurrence data
+# and comparing it across where emus are monitored
+
+# Let's see how many emu populations are included in the Living Planet Database
+emu <- bird_pops %>% filter(common.name == "Emu") # just one!
+
+# Download species occurrence records from the Global Biodiversity Information Facility
+# *** rgbif package and the occ_search() function ***
+# You can increase or decrease the limit to get more records - 10000 takes a couple of minutes
+emu_locations <- occ_search(scientificName = "Dromaius novaehollandiae", limit = 10000,
+                            hasCoordinate = TRUE, return = "data") %>%
+  # Simplify occurrence data frame
+  dplyr::select(key, name, decimalLongitude,
+                decimalLatitude, year,
+                individualCount, country)
+
+# We can check the validity of the coordinates using the CoordinateCleaner package
+emu_locations_test <- clean_coordinates(emu_locations, lon = "decimalLongitude", lat = "decimalLatitude",
+                                        species = "name", tests = c("outliers", "zeros"), 
+                                        outliers_method = "distance", outliers_td = 5000)
+# No records were flagged
+
+# We do want to focus on just Australia though, as that's the native range
+summary(as.factor(emu_locations$country))
+# Thus e.g. no German emus
+emu_locations <- emu_locations %>% filter(country == "Australia")
+
+# Getting the data for the one monitored emu population
+emu_long <- bird_pops_long %>% filter(common.name == "Emu") %>%
+  drop_na(pop)
+
+(emu_map <- ggplot() +
+    geom_map(map = australia, data = australia,
+             aes(long, lat, map_id = region), 
+             color = "gray80", fill = "gray80", size = 0.3) +
+    coord_proj(paste0("+proj=merc"), ylim = c(-9, -45)) +
+    theme_map() +
+    geom_point(data = emu_locations, 
+               aes(x = decimalLongitude, y = decimalLatitude),
+               alpha = 0.1, size = 1, colour = "turquoise4") +
+    geom_label_repel(data = emu_long[1,],
+                     aes(x = decimal.longitude, y = decimal.latitude,
+                         label = location.of.population),
+                     box.padding = 1, size = 5, nudge_x = -30,
+                     nudge_y = -6,
+                     min.segment.length = 0, inherit.aes = FALSE) +
+    geom_point(data = emu_long[1,], 
+               aes(x = decimal.longitude, y = decimal.latitude),
+               size = 5, fill = "deepskyblue4", 
+               shape = 21, colour = "white") +
+    theme(legend.position = "bottom",
+          legend.title = element_text(size = 16),
+          legend.text = element_text(size = 10),
+          legend.justification = "top"))
+
+ggsave(emu_map, filename = "emu_map.png",
+       height = 5, width = 8)
+
+(emu_trend <- ggplot(emu_long, aes(x = year, y = pop)) +
+    geom_line() +
+    geom_point())
+
+(emu_trend <- ggplot(emu_long, aes(x = year, y = pop)) +
+    geom_line(linetype = "dotted", colour = "turquoise4") +
+    geom_point(size = 6, colour = "white", fill = "deepskyblue4",
+               shape = 21) +
+    geom_rect(aes(xmin = 1987.5, xmax = 1988.5, ymin = 0, ymax = 0.3),
+              fill = "turquoise4", alpha = 0.03) +
+    annotate("text", x = 1986.2, y = 0.25, colour = "deepskyblue4",
+             label = "Maybe 1988 was a wetter year\n or something else happened...",
+             size = 4.5) +
+    scale_y_continuous(limits = c(0, 0.3), expand = expand_scale(mult = c(0, 0)),
+                       breaks = c(0, 0.1, 0.2, 0.3)) +
+    labs(x = NULL, y = bquote(atop('Emus per ' ~ (km^2), ' ')),
+         title = "Emu abundance in the\n pastoral zone of South Australia\n") +
+    theme_clean())
+
+ggsave(emu_trend, filename = "emu_trend.png",
+       height = 5, width = 8)
+
+### 5. Create beautiful and informative figure panels
+
+# Panels ----
+# Create panel of all graphs
+# Makes a panel of the map and occurrence plot and specifies the ratio
+# i.e., we want the map to be wider than the other plots
+emu_panel <- grid.arrange(emu_map, emu_trend, ncol = 2)
+
+# suppressWarnings() suppresses warnings in the ggplot call here
+# (the warning messages about the map projection)
+emu_panel <- suppressWarnings(grid.arrange(emu_map, emu_trend, 
+                                           ncol = 2, widths = c(1.2, 0.8)))
+
+(emu_trend <- ggplot(emu_long, aes(x = year, y = pop)) +
+    geom_line(linetype = "dotted", colour = "turquoise4") +
+    geom_point(size = 6, colour = "white", fill = "deepskyblue4",
+               shape = 21) +
+    geom_rect(aes(xmin = 1987.5, xmax = 1988.5, ymin = 0, ymax = 0.3),
+              fill = "turquoise4", alpha = 0.03) +
+    annotate("text", x = 1986, y = 0.25, colour = "deepskyblue4",
+             label = "Maybe 1988 was a wetter year\n or something else happened...",
+             size = 4.5) +
+    scale_y_continuous(limits = c(0, 0.3), expand = expand_scale(mult = c(0, 0)),
+                       breaks = c(0, 0.1, 0.2, 0.3)) +
+    labs(x = "\n\n", y = bquote(atop('Emus per ' ~ (km^2), ' ')),
+         title = "\n\nEmu abundance in the\n pastoral zone of South Australia\n") +
+    theme_clean())
+
+emu_panel <- suppressWarnings(grid.arrange(emu_map, emu_trend, 
+                                           ncol = 2, widths = c(1.1, 0.9)))
+
+ggsave(emu_panel, filename = "emu_panel.png", height = 6, width = 14)
+
+# Map on top, two panels below
+diet_panel <- suppressWarnings(grid.arrange(timeline_aus,
+                                            trends_diet, ncol = 2))
+diet_panel_map <- suppressWarnings(grid.arrange(map, diet_panel, nrow = 2))
+# The equal split might not be the best style for this panel
+
+# change the ratio
+diet_panel_map <- suppressWarnings(grid.arrange(map, diet_panel, nrow = 2, heights = c(1.3, 0.7)))
+
+(timeline_aus <- ggplot() +
+    geom_linerange(data = bird_models_traits, aes(ymin = minyear, ymax = maxyear, 
+                                                  colour = diet,
+                                                  x = fct_reorder(id, desc(sort))),
+                   size = 1) +
+    scale_colour_manual(values = wes_palette("Cavalcanti1")) +
+    labs(x = NULL, y = "\n") +
+    theme_clean() +
+    coord_flip() +
+    guides(colour = F) +
+    theme(panel.grid.minor = element_blank(),
+          panel.grid.major.y = element_blank(),
+          panel.grid.major.x = element_line(),
+          axis.ticks = element_blank(),
+          legend.position = "bottom", 
+          panel.border = element_blank(),
+          legend.title = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks.y = element_blank(),
+          plot.title = element_text(size = 20, vjust = 1, hjust = 0),
+          axis.text = element_text(size = 16), 
+          axis.title = element_text(size = 20)))
+
+(trends_diet <- ggplot() +
+    geom_jitter(data = bird_models_traits, aes(x = diet, y = estimate,
+                                               colour = diet),
+                size = 3, alpha = 0.3, width = 0.2) +
+    geom_segment(data = diet_means,aes(x = diet, xend = diet,
+                                       y = mean(bird_models_traits$estimate), 
+                                       yend = mean_trend),
+                 size = 0.8) +
+    geom_point(data = diet_means, aes(x = diet, y = mean_trend,
+                                      fill = diet), size = 5,
+               colour = "grey30", shape = 21) +
+    geom_hline(yintercept = mean(bird_models_traits$estimate), 
+               size = 0.8, colour = "grey30") +
+    geom_hline(yintercept = 0, linetype = "dotted", colour = "grey30") +
+    coord_flip() +
+    theme_minimal() +
+    theme(axis.text.x = element_text(size = 14),
+          axis.text.y = element_text(size = 14),
+          axis.title.x = element_text(size = 14, face = "plain"),             
+          axis.title.y = element_text(size = 14, face = "plain"),             
+          plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), units = , "cm"),
+          plot.title = element_text(size = 15, vjust = 1, hjust = 0.5),
+          legend.text = element_text(size = 12, face = "italic"),          
+          legend.title = element_blank(),                              
+          legend.position = c(0.5, 0.8)) +
+    scale_colour_manual(values = wes_palette("Cavalcanti1")) +
+    scale_fill_manual(values = wes_palette("Cavalcanti1")) +
+    scale_y_continuous(limits = c(-0.23, 0.23),
+                       breaks = c(-0.2, -0.1, 0, 0.1, 0.2),
+                       labels = c("-0.2", "-0.1", "0", "0.1", "0.2")) +
+    scale_x_discrete(labels = c("Carnivore", "Fruigivore", "Omnivore", "Insectivore", "Herbivore")) +
+    labs(x = NULL, y = "\nPopulation trend") +
+    guides(colour = FALSE, fill = FALSE))
+
+diet_panel <- suppressWarnings(grid.arrange(timeline_aus,
+                                            trends_diet, ncol = 2))
+diet_panel_map <- suppressWarnings(grid.arrange(map, diet_panel, nrow = 2, heights = c(1.3, 0.7)))
+
+ggsave(diet_panel_map, filename = "diet_panel.png", height = 9, width = 10)
+
 
 
 
