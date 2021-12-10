@@ -26,3 +26,14 @@ If you have any questions, comments, or concerns, please reach out to me using t
 
 Michael Zargari Github: @mzargari Email: s2253374@ed.ac.uk
 
+----
+
+## Coding Etiquette
+
+The following rules should be upheld at all times when coding or working in this repo:
+1. Include informative comments throughout your code, using the hashtag (`#`) symbol
+2. Space out your code to make it easier to read (putting spaces between operators)
+3. Breakdown your work into sections by typing - four times (`----`) in RStudio next to a comment
+4. Give informative names to all of your objects
+5. Keep your code to under 100 characters in length per line (add guidance line as reference) 
+6. When naming folders and assignments, capitalize the first letter and use `_` for spaces if necessary
