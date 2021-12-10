@@ -1,0 +1,1 @@
+## This folder contains all the image files that were used in my markdown code
