@@ -12,7 +12,7 @@ Credit: entrepreneurship.columbia.edu
 
 ## Tutorial Introduction:
 
-Hello! Thank you for taking the time to read through my repository. I hope you find everything easily. This is all the work I completed over the Fall 2021 semester. I would also like to give a big thank you to the teaching team for all their hard work this term, especially with answering all my questions. I have learned a great deal throughout this course which I will be carrying with me into the real world (both academically and career wise). Below you will find more information regarding the repository. Happy Coding! :)
+Hello! Thank you for taking the time to read through my repository. I hope you find everything easily. This is all the work I completed over the Fall 2021 semester. I would also like to give a big thank you to the teaching team for all their hard work this term, especially with answering all my questions. I have learned a great deal about Github and R throughout this course which I will be carrying with me into the real world (both academically and career wise). Below you will find more information regarding the repository. Happy Coding! :)
 
 ## This Repository contains the following folders and files: 
 
