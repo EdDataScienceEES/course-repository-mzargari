@@ -34,6 +34,8 @@ A folder containing all the data I used that week for my tutorial assignments.
 A folder for the code that I typed from the Coding Club tutorials. These coding files include my own comments and headers.
 #### (4) [If applicable] Week_X_Outputs
 A folder containing all the outputs from my Coding Club tutorial (if outputs were recorded).
+#### (5) [If applicable] Week_X_Tutorial-Provided_Code
+A folder containing all the scripts that were provided with the Coding Club tutorial, if scripts were recorded. Many times, these scripts need to be corrected, which the corrected one would be found in the folder titled "Week_X_Tutorial_Work."
 
 ## Files:
 
