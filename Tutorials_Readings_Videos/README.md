@@ -18,3 +18,5 @@ A folder containing all the scripts that were provided with the Coding Club tuto
 #################################################################
 
 https://docs.google.com/document/d/1uzRoW0AKAX9KjS-y1Qlzulr6fREm9bxm5jetVzCeYaE/edit?usp=sharing
+
+### banner_code: a file that contains the code that I used in this course (from the coding club tutorials) to make the introductory banners in my assignments.
